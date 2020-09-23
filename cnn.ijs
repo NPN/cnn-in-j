@@ -55,7 +55,7 @@ testzhang =: 4 : 0
 
 train =: 3 : 0
   t =. 6!:1 ''
-  'k1 b1 k2 b2 fc b rate imgs labs trsz' =. y
+  'k1 b1 k2 b2 fc b rate momentum imgs labs trsz' =. y
   e =. 0
   i =. 0
 
@@ -63,16 +63,40 @@ train =: 3 : 0
   imgs =. shuf { imgs
   labs =. shuf { labs
 
+  pd_k1 =. 6 5 5 $ 0
+  pd_k2 =. 12 6 5 5 $ 0
+  pd_b1 =. 6 $ 0
+  pd_b2 =. 12 $ 0
+  pd_fc =. 10 12 1 4 4 $ 0
+  pd_b  =. 10 $ 0
+
   while. i < trsz do.
     img =. i { imgs
     target =. 10 1 1 1 1 $ (i. 10) = i { labs
-    'd_k1 d_b1 d_k2 d_b2 d_fc d_b err' =. trainzhang img;target;k1;b1;k2;b2;fc;b
-    k1 =. k1 - rate * d_k1
-    k2 =. k2 - rate * d_k2
-    b1 =. b1 - rate * d_b1
-    b2 =. b2 - rate * d_b2
-    fc =. fc - rate * d_fc
-    b  =. b  - rate * d_b
+
+    e_k1 =. k1 - momentum * pd_k1
+    e_k2 =. k2 - momentum * pd_k2
+    e_b1 =. b1 - momentum * pd_b1
+    e_b2 =. b2 - momentum * pd_b2
+    e_fc =. fc - momentum * pd_fc
+    e_b  =. b  - momentum * pd_b
+
+    'd_k1 d_b1 d_k2 d_b2 d_fc d_b err' =. trainzhang img;target;e_k1;e_b1;e_k2;e_b2;e_fc;e_b
+
+    pd_k1 =. (momentum * pd_k1) + rate * d_k1
+    pd_k2 =. (momentum * pd_k2) + rate * d_k2
+    pd_b1 =. (momentum * pd_b1) + rate * d_b1
+    pd_b2 =. (momentum * pd_b2) + rate * d_b2
+    pd_fc =. (momentum * pd_fc) + rate * d_fc
+    pd_b  =. (momentum * pd_b)  + rate * d_b
+
+    k1 =. k1 - pd_k1
+    k2 =. k2 - pd_k2
+    b1 =. b1 - pd_b1
+    b2 =. b2 - pd_b2
+    fc =. fc - pd_fc
+    b  =. b  - pd_b
+
     e  =. e + +/ err
     i  =. i + 1
   end.
@@ -98,6 +122,7 @@ main =: 3 : 0
   trainings =. 1000
   tests     =. 10000
   rate      =. 0.05
+  momentum  =. 0.9
 
   init =. 4 : '(%: 6 % x) * <: +: ? y $ 0'
   k1   =. (25 * 1 + 6) init 6 5 5
@@ -118,9 +143,9 @@ main =: 3 : 0
   teimgs =. (teimgs -"2 trmean) %"2 trstd
 
   'Running Zhang with %d epochs' printf epochs
-  '%d training images, %d tests, and a rate of %.3f' printf trainings ; tests ; rate
+  '%d training images, %d tests, learning rate %.3f, momentum %.3f' printf trainings;tests;rate;momentum
 
-  'k1 b1 k2 b2 fc b' =. ([: train ,&(rate;trimgs;trlabs;trainings))^:epochs k1;b1;k2;b2;fc;b
+  'k1 b1 k2 b2 fc b' =. ([: train ,&(rate;momentum;trimgs;trlabs;trainings))^:epochs k1;b1;k2;b2;fc;b
 
   t =. 6!:1 ''
   correct =. +/ telabs = teimgs testzhang"2 k1;b1;k2;b2;fc;b
