@@ -64,8 +64,8 @@ train =: 3 : 0
   labs =. shuf { labs
 
   pd_k1 =. 6 5 5 $ 0
-  pd_k2 =. 12 6 5 5 $ 0
   pd_b1 =. 6 $ 0
+  pd_k2 =. 12 6 5 5 $ 0
   pd_b2 =. 12 $ 0
   pd_fc =. 10 12 1 4 4 $ 0
   pd_b  =. 10 $ 0
@@ -75,8 +75,8 @@ train =: 3 : 0
     target =. 10 1 1 1 1 $ (i. 10) = i { labs
 
     e_k1 =. k1 - momentum * pd_k1
-    e_k2 =. k2 - momentum * pd_k2
     e_b1 =. b1 - momentum * pd_b1
+    e_k2 =. k2 - momentum * pd_k2
     e_b2 =. b2 - momentum * pd_b2
     e_fc =. fc - momentum * pd_fc
     e_b  =. b  - momentum * pd_b
@@ -84,15 +84,15 @@ train =: 3 : 0
     'd_k1 d_b1 d_k2 d_b2 d_fc d_b err' =. trainzhang img;target;e_k1;e_b1;e_k2;e_b2;e_fc;e_b
 
     pd_k1 =. (momentum * pd_k1) + rate * d_k1
-    pd_k2 =. (momentum * pd_k2) + rate * d_k2
     pd_b1 =. (momentum * pd_b1) + rate * d_b1
+    pd_k2 =. (momentum * pd_k2) + rate * d_k2
     pd_b2 =. (momentum * pd_b2) + rate * d_b2
     pd_fc =. (momentum * pd_fc) + rate * d_fc
     pd_b  =. (momentum * pd_b)  + rate * d_b
 
     k1 =. k1 - pd_k1
-    k2 =. k2 - pd_k2
     b1 =. b1 - pd_b1
+    k2 =. k2 - pd_k2
     b2 =. b2 - pd_b2
     fc =. fc - pd_fc
     b  =. b  - pd_b
@@ -132,13 +132,13 @@ main =: 3 : 0
   fc   =. (192 + 10) init 10 12 1 4 4
   b    =. 10 $ 0
 
-  trimgs =. readimages 'input/train-images-idx3-ubyte'
-  trlabs =. readlabels 'input/train-labels-idx1-ubyte'
+  trimgs =. trainings {. readimages 'input/train-images-idx3-ubyte'
+  trlabs =. trainings {. readlabels 'input/train-labels-idx1-ubyte'
   teimgs =. readimages 'input/t10k-images-idx3-ubyte'
   telabs =. readlabels 'input/t10k-labels-idx1-ubyte'
 
-  trmean =. mean trainings {. trimgs
-  trstd  =. (+ 0&=) stddev trainings {. trimgs
+  trmean =. mean trimgs
+  trstd  =. (+ 0&=) stddev trimgs
   trimgs =. (trimgs -"2 trmean) %"2 trstd
   teimgs =. (teimgs -"2 trmean) %"2 trstd
 

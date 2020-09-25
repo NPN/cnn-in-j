@@ -21,6 +21,6 @@ This is a mostly faithful translation of the GitHub version (not the paper versi
 * Shuffling of training data at the start of each epoch
 * [Nesterov accelerated gradient](https://ruder.io/optimizing-gradient-descent/#nesterovacceleratedgradient)
 
-These changes increase the accuracy from 76.23% to 93.27%. There are many other opportunities for improvement, but the code is so slow that it's a drag to test changes. (It takes about 20s per epoch and 40s to test on my laptop.)
+These changes increase the accuracy from 76.23% to 93.27%. There are many other opportunities for improvement, but the code is so slow that it's a drag to test changes. For example, the accuracy can be improved to 97.47% by training on all 60k images for 1 epoch, but that takes about 22 minutes on my laptop (a speed of 45 images/s).
 
 The other notable difference is that while the APL version avoids stencil `⌺`, we don't avoid J's subarrays `;._3`: J doesn't add padding like Dyalog does, so there's no performance penalty.
